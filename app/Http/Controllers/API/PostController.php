@@ -15,11 +15,11 @@ class PostController extends Controller
      */
     public function index()
     {
-        // $data['post'] = Post::all();
+        $data = Post::all();
         return response()->json([
             'status' => true,
             'message' => " all post",
-            // 'data'=> $data,
+            'data'=> $data,
         ],200);
 
     }
@@ -57,7 +57,7 @@ $img->move(public_path().'\uploads',$imageName);
         $post = Post::create([
             
             'title' => $request->title,
-            'description' =>  $request->decription,
+            'description' =>  $request->description,
             'image' => $imageName, 
         ]);
 
@@ -76,15 +76,15 @@ $img->move(public_path().'\uploads',$imageName);
         $data['post'] = Post::select(
             'id',
             'title',
-            'descripton',
+            'description',
             'image'
 
-        )->where(['id' => $id])-get();
+        )->where(['id' => $id])->get();
 
         return response()->json([
             'status' => true,
             'message' => ' data  created successfully',
-            'psot' => $data,
+            'post' => $data,
         ], 200);
     }
 
@@ -98,10 +98,10 @@ $img->move(public_path().'\uploads',$imageName);
             [ 
                 'title' => 'required',
                 'description' => 'required',
-                'image' => 'required|mimes:png,jpg,jpeg,gif',
+                'image' => 'nullable|mimes:png,jpg,jpeg,gif', // ✅ make image optional
             ]
         );
-
+    
         if ($validateUser->fails()) {
             return response()->json([
                 'status' => false,
@@ -109,39 +109,49 @@ $img->move(public_path().'\uploads',$imageName);
                 'errors' => $validateUser->errors()->all(),
             ], 401);
         }
-
-        $post =Post::select('id', 'image')-get();
-        if($request->image != ''){
-            $path = public_path().'\uploads';
-            if($post->image != '' && $post->image != null){
-                $old_file = $path. $post->image ;
-                if(file_exists($old_file)){
-                    unlink($old_file); 
-                }
+    
+        // Find the post first
+        $post = Post::find($id);
+    
+        if (!$post) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Post not found',
+            ], 404);
+        }
+    
+        $imageName = $post->image; // Default is old image
+    
+        // If a new image is uploaded
+        if ($request->hasFile('image')) {
+            $path = public_path('/uploads');
+    
+            // Delete the old image
+            if (!empty($post->image) && file_exists($path . '/' . $post->image)) {
+                unlink($path . '/' . $post->image);
             }
-            $img = $request->image;
+    
+            // Upload new image
+            $img = $request->file('image');
             $ext = $img->getClientOriginalExtension();
-            $imageName = time(). '.'. $ext ;
-            $img->move(public_path().'\uploads',$imageName);
+            $imageName = time() . '.' . $ext;
+            $img->move($path, $imageName);
         }
-        else{
-                $imageName = $post->image;
-        }
-
-        $post = Post::where(['id'=> $id])->update([
-            
+    
+        // Update post
+        $post->update([
             'title' => $request->title,
-            'description' =>  $request->decription,
-            'image' => $imageName, 
+            'description' => $request->description,
+            'image' => $imageName,
         ]);
-
+    
         return response()->json([
             'status' => true,
-            'message' => 'post updated  successfully',
+            'message' => 'Post updated successfully',
             'post' => $post,
         ], 200);
     }
-
+    
     /**
      * Remove the specified resource from storage.
      */
