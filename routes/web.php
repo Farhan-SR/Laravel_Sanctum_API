@@ -12,3 +12,6 @@ Route::get('/posts', function () {
 Route::get('/addpost', function () {
     return view('addpost');
 });
+Route::get('/login', function () {
+    return view('login');
+});

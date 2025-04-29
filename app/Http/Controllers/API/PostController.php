@@ -98,7 +98,7 @@ $img->move(public_path().'\uploads',$imageName);
             [ 
                 'title' => 'required',
                 'description' => 'required',
-                'image' => 'nullable|mimes:png,jpg,jpeg,gif', // ✅ make image optional
+                'image' => 'nullable', 
             ]
         );
     

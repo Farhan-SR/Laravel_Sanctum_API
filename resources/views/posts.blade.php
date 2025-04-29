@@ -48,17 +48,17 @@
                 </div>
                 <form id="updateform">
                     <div class="modal-body">
-                        <input type="hidden" id="postid" name="id">
+                        <input type="hedden" id="postid" name="id">
 
-                        <b>Title</b>
-                        <input type="text" id="title" name="title" placeholder="Title">
+                        <b>Title</b><br>
+                        <input class="border p-2" type="text" id="title" name="title" placeholder="Title">
                         <br>
-                        <b>Description</b>
-                        <input type="text" id="description" name="description" placeholder="description">
+                        <b>Description</b><br>
+                        <input class="border p-2"  type="text" id="description" name="description" placeholder="description">
                         <br>
-                        <img id="showimage" width="150px">
+                        <img class=" m-5"  id="showimage" width="250px">
                         <p>Upload Image</p>
-                        <input id="postimage" type="text" id="uplaodimage" name="image">
+                        <input  type="file" id="uplaodimage" name="image">
 
                     </div>
                     <div class="modal-footer">
@@ -78,7 +78,7 @@
     <!-- Actions -->
     <div class="px-6 py-4 flex space-x-2">
         <a href="/addpost" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add New</a>
-        <a id="logoutbtn" href="#" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Logout</a>
+        <a id="logoutbtn"  href="/login" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Logout</a>
     </div>
 
     <!-- Table -->
@@ -158,7 +158,7 @@
                             <form method="POST" action="#">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                                <button onclick="deletePost(${post.id})" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
                                     Delete
                                 </button>
                             </form>
@@ -232,13 +232,77 @@ if (UpdatelModel) {
                 const post = data.post.post[0];
                 
 
-                // document.querySelector("#postid").value = id ;
+                document.querySelector("#postid").value = id ;
                 document.querySelector("#title").value = post.title ;
                 document.querySelector("#description").value = post.description ;
                 document.querySelector("#showimage").src = `/uploads/${post.image}` ;
-        })   
+        })  
+        
+        
+
+
   })
 }
+
+// update post model 
+var updateform = document.querySelector('#updateform');
+updateform.onsubmit =  async function (e) {
+    e.preventDefault();
+    const postid = document.querySelector('#postid').value;
+    const token = localStorage.getItem('api_token');
+    const title = document.querySelector('#title').value;
+    const description = document.querySelector('#description').value;
+
+
+    var formData = new FormData();
+    formData.append('title', title);
+    formData.append('id', postid);
+    formData.append('description', description);
+
+    if(!document.querySelector('#uplaodimage').files[0] > 0){
+        const imagex = document.querySelector('#uplaodimage').files[0];
+        formData.append('image', imagex); 
+    }
+    
+
+    let response = await  fetch(`/api/posts/${postid}`,({
+            method: 'POST',
+            body:formData ,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'X-HTTP-Method-Override': 'PUT'
+
+            }
+        }))
+    .then(response => response.json()) 
+    .then(data => {
+        console.log(data);
+       window.location.href = "http://127.0.0.1:8000/posts";
+ 
+
+    })
+
+}
+
+
+// deletePost 
+async function  deletePost(postid){
+    const token = localStorage.getItem('api_token');
+ let response = await   fetch(`/api/posts/${postid}`,({
+        method: 'DELETE',
+        headers: {  
+        'Authorization': `Bearer ${token}`,            
+        
+        }
+        }))
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+        //    window.location.href = "http://127.0.0.1:8000/posts";
+    
+        })
+}
+
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
