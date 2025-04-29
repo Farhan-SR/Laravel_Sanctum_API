@@ -9,3 +9,6 @@ Route::get('/', function () {
 Route::get('/posts', function () {
     return view('posts');
 });
+Route::get('/addpost', function () {
+    return view('addpost');
+});
