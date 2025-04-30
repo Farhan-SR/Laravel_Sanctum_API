@@ -89,15 +89,10 @@ class AuthController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'You have been logged out successfully',
+            
         ], 200);
 
+        
     }
-    // test 
-    public function farhan(Request $req)
-    {
-        return response()->json([
-            'status' => true,
-            'message' => 'You have been logged out successfully',
-        ], 200);
-    }
+   
 }

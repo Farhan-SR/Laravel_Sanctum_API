@@ -155,17 +155,38 @@ $img->move(public_path().'\uploads',$imageName);
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
-    {
-        $imagePath = Post::select('image')->where('id',$id)-get();
-        $filePath = public_path().'/uploads'. $imagePath[0]['image'];
-        unlink($filePath);
+    // public function destroy(string $id)
+    // {
+    //     $imagePath = Post::select('image')->where('id',$id)->get();
+    //     $filePath = public_path().'/uploads/'. $imagePath[0]['image'];
+    //     unlink($filePath);
 
-        $post = Post::where('id', $id)->delete();
-        return response()->json([
-            'status' => true,
-            'message'=> "deleted",
-            'post'=> $post ,
-        ],200);
-    }
+    //     $post = Post::where('id', $id)->delete();
+    //     return response()->json([
+    //         'status' => true,
+    //         'message'=> "deleted",
+    //         'post'=> $post ,
+    //     ],200);
+    // }
+    public function destroy(string $id)
+{
+    // Potential Issue 1: What if post with $id doesn't exist?
+    $imagePath = Post::select('image')->where('id',$id)->get();
+
+    // Potential Issue 2: Accessing [0] might fail if $imagePath is empty.
+    // Potential Issue 3: What if image is null or empty string in DB?
+    $filePath = public_path().'/uploads/'. $imagePath[0]['image'];
+
+    // Potential Issue 4: unlink() might fail if file doesn't exist or permissions are wrong.
+    unlink($filePath); // This can throw warnings/errors
+
+    // This part is usually robust, but DB issues could occur.
+    $post = Post::where('id', $id)->delete();
+
+    return response()->json([
+        'status' => true,
+        'message'=> "deleted",
+        'post'=> $post , // $post here is the *number* of deleted rows (usually 1)
+    ],200);
+}
 }

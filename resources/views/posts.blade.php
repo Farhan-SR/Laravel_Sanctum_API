@@ -286,21 +286,27 @@ updateform.onsubmit =  async function (e) {
 
 
 // deletePost 
-async function  deletePost(postid){
-    const token = localStorage.getItem('api_token');
- let response = await   fetch(`/api/posts/${postid}`,({
-        method: 'DELETE',
-        headers: {  
-        'Authorization': `Bearer ${token}`,            
-        
-        }
-        }))
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-        //    window.location.href = "http://127.0.0.1:8000/posts";
-    
-        })
+async function deletePost(post_id) {
+    console.log(post_id);
+  const token = localStorage.getItem('api_token');
+
+  try {
+    console.log("from delte post");
+    const response = await fetch(`/api/posts/${post_id}`, {
+      method: "DELETE",
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+    console.log(data);
+   
+    window.location.href = "/posts";
+  } catch (error) {
+    console.error('Delete failed:', error);
+  }
 }
 
     </script>
